@@ -1,10 +1,15 @@
-#[allow(dead_code)]
-#[allow(unused_variables)]
+use std::{io::Read, usize};
+
+use TD1::print::*;
 
 fn main() {
-    let state: [u64; 25];
-    let b: usize = 1600; // 1600 = 64 x 5 x 5
-    let r: usize;
-    let c: usize;
-    println!("Hello, world!");
+    let hash_size: usize = std::env::args() // hash_size is a number of bytes
+        .nth(1)
+        .expect("No hash size provided")
+        .parse()
+        .expect("Argument is not an integer");
+
+    let mut byt_input = Vec::new();
+    let _ = std::io::stdin().read_to_end(&mut byt_input);
+    let states = bytes_to_states(&byt_input);
 }
