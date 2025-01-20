@@ -178,4 +178,20 @@ mod test {
             read_example(padded)
         );
     }
+
+    #[test]
+    #[ignore = "This cannot work since we process the chunks directly, but we compare against the first input, which is XORed with only the first chunk"]
+    fn padding_0xA3_201_times() {
+        let mut message = [0xA3; 169];
+        message[168] = 0x03;
+        let padded= "A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 A3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ";
+        assert_eq!(
+            bytes_to_chunks(&message)
+                .into_iter()
+                .map(|chunk| state_to_string(&chunk, " "))
+                .collect::<Vec<String>>()
+                .join(" "),
+            read_example(padded)
+        );
+    }
 }
