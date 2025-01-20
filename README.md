@@ -1,11 +1,15 @@
 # SHAKE128 implementation
 
+This project can be cloned from [GitHub](git@github.com:leo-leesco/Crypto-TD1.git).
+
 ## How to test
 
-To test all unit tests written in `tests` :
+To test all tests :
 ```shell
 cargo test
 ```
+
+Note that running the tests has the side effect of building `target/debug/shake128`.
 
 ## How to build
 
