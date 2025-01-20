@@ -134,6 +134,45 @@ mod test {
     fn hex() {
         assert_eq!([0x13], "13".as_bytes());
     }
+    const EMPTY: [u64; STATE_SIZE] = [0; STATE_SIZE];
+    const EMPTY_PADDED: [u64; STATE_SIZE] = [
+        0x1F,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0x8000000000000000,
+        0,
+        0,
+        0,
+        0,
+    ];
+
+    //#[test]
+    //fn check_empty() {
+    //    assert_eq!(
+    //        EMPTY_PADDED[..RATE],
+    //        bytes_to_chunks(EMPTY.map(|chunk| unpack_bytes(&chunk)).as_flattened())
+    //            .first()
+    //            .unwrap()
+    //            .to_owned()
+    //    );
+    //}
 
     #[test]
     //#[ignore = "For some reason, it looks like the test case has about 30 chunks, instead of the 21 we are expecting."]

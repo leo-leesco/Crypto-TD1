@@ -1,7 +1,5 @@
 # SHAKE128 implementation
 
-Given a permutation $f$ of $b$ bits, we choose $b=r+c$ where $c$ is the capacity and $r$ is the size of the actual data you wish to hash.
-
 ## How to test
 
 To test all unit tests written in `tests` :
@@ -9,7 +7,16 @@ To test all unit tests written in `tests` :
 cargo test
 ```
 
-Some tests are built with printing in mind, use :
+## How to build
+
+Simply run :
 ```shell
-cargo test -- --nocapture
+cargo build --release
 ```
+
+Usage :
+```shell
+./target/release/shake128 <hash_size_in_bytes>
+```
+
+The hash will be calculated on `stdin`.

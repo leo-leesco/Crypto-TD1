@@ -47,3 +47,45 @@ fn main() {
         hash
     });
 }
+
+//#[cfg(test)]
+//mod test {
+//    use TD1::{convert::bytes_to_chunks, keccak::shake128, RATE, STATE_SIZE};
+//
+//    const EMPTY: [u64; STATE_SIZE] = [0; STATE_SIZE];
+//    const EMPTY_PADDED: [u64; STATE_SIZE] = [
+//        0x1F,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0,
+//        0x8000000000000000,
+//        0,
+//        0,
+//        0,
+//        0,
+//    ];
+//
+//    #[test]
+//    fn check_empty() {
+//        assert_eq!(
+//            EMPTY_PADDED[..RATE],
+//            bytes_to_chunks(EMPTY).first().unwrap()
+//        );
+//    }
+//}
