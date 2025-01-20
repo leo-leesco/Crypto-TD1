@@ -2,9 +2,7 @@ use std::io::Read;
 
 use itertools::Itertools;
 use TD1::{
-    convert::{bytes_to_chunks, chunk_to_string},
-    keccak::shake128,
-    BITS_PER_BYTE, BYTES_PER_CHUNK, DIGITS_PER_BYTE, RATE, STATE_SIZE,
+    convert::bytes_to_chunks, keccak::shake128, BYTES_PER_CHUNK, DIGITS_PER_BYTE, RATE, STATE_SIZE,
 };
 
 #[allow(non_snake_case)]

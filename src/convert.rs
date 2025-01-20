@@ -62,24 +62,15 @@ fn unpack_bytes(packed_bytes: &u64) -> [u8; BITS_PER_BYTE] {
     }
     byte_array
 }
-fn pack_bytes(unpacked_bytes: &[u8]) -> u64 {
-    // Keep this in a single left shift loop and never reverse:
-    // (Assumes unpacked_bytes[0] is the least significant byte.)
-    assert!(unpacked_bytes.len() == 8);
-    let mut packed: u64 = 0;
-    for (i, &b) in unpacked_bytes.iter().enumerate() {
-        packed |= (b as u64) << (8 * i);
-    }
-    packed
+
+fn pack_bytes(unpacked_bytes: &[u8; BITS_PER_BYTE]) -> u64 {
+    assert!(unpacked_bytes.len() == BITS_PER_BYTE);
+    unpacked_bytes.iter().rev().fold(0, |packed, &byt| {
+        #[cfg(test)]
+        eprint!("{packed:0width$X}", width = DIGITS_PER_BYTE);
+        (packed << (BITS_PER_BYTE * size_of::<u8>())) + (byt as u64)
+    })
 }
-//fn pack_bytes(unpacked_bytes: &[u8; BITS_PER_BYTE]) -> u64 {
-//    assert!(unpacked_bytes.len() == BITS_PER_BYTE);
-//    unpacked_bytes.iter().rev().fold(0, |packed, &byt| {
-//        //#[cfg(test)]
-//        //eprint!("{packed:0width$X}", width = DIGITS_PER_BYTE);
-//        (packed << (BITS_PER_BYTE * size_of::<u8>())) + (byt as u64)
-//    })
-//}
 
 /// takes in (less than 168) bytes, and possibly appends 0b111110…01 to pad to 168 bytes
 /// equivalently, the 168 byte-array first non filled byte is XORed with 0x1F, and the last byte
@@ -123,7 +114,6 @@ pub fn bytes_to_chunks(b: &[u8]) -> Vec<[u64; RATE]> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::*;
 
     const ZERO_STATE: [u64; STATE_SIZE] = [0; STATE_SIZE];
 
@@ -152,48 +142,8 @@ mod test {
     fn hex() {
         assert_eq!([0x13], "13".as_bytes());
     }
-    const EMPTY: [u64; STATE_SIZE] = [0; STATE_SIZE];
-    const EMPTY_PADDED: [u64; STATE_SIZE] = [
-        0x1F,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0x8000000000000000,
-        0,
-        0,
-        0,
-        0,
-    ];
-
-    //#[test]
-    //fn check_empty() {
-    //    assert_eq!(
-    //        EMPTY_PADDED[..RATE],
-    //        bytes_to_chunks(EMPTY.map(|chunk| unpack_bytes(&chunk)).as_flattened())
-    //            .first()
-    //            .unwrap()
-    //            .to_owned()
-    //    );
-    //}
 
     #[test]
-    //#[ignore = "For some reason, it looks like the test case has about 30 chunks, instead of the 21 we are expecting."]
     fn padding_zero() {
         let empty = "".as_bytes();
         let empty_padded= "1F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 ";
