@@ -1,7 +1,7 @@
-use crate::{BITS_PER_BYTE, BYTES_PER_CHUNK, DIGITS_PER_BYTE, RATE};
+use crate::{BITS_PER_BYTE, BYTES_PER_CHUNK, DIGITS_PER_BYTE, RATE, STATE_SIZE};
 use itertools::Itertools;
 
-pub fn state_to_string(state: &[u64], separator: &str) -> String {
+pub fn chunk_to_string(state: &[u64], separator: &str) -> String {
     state
         .into_iter()
         .map(|word| {
@@ -35,6 +35,15 @@ pub fn read_example(example: &str) -> String {
         .join(" ")
 }
 
+pub fn example_to_state(example: &str) -> [u64; STATE_SIZE] {
+    read_example(example)
+        .split_whitespace()
+        .map(|chunk| u64::from_str_radix(chunk, 16).unwrap())
+        .collect::<Vec<u64>>()
+        .try_into()
+        .unwrap_or([0; STATE_SIZE])
+}
+
 #[allow(unused)]
 /// slices a u64 as 8 hexadecimal u8, ordered from least significant to most significant
 fn unpack_bytes(packed_bytes: &u64) -> [u8; BITS_PER_BYTE] {
@@ -53,15 +62,24 @@ fn unpack_bytes(packed_bytes: &u64) -> [u8; BITS_PER_BYTE] {
     }
     byte_array
 }
-
 fn pack_bytes(unpacked_bytes: &[u8]) -> u64 {
-    assert!(unpacked_bytes.len() == BITS_PER_BYTE);
-    unpacked_bytes.iter().rev().fold(0, |packed, &byt| {
-        //#[cfg(test)]
-        //eprint!("{packed:0width$X}", width = DIGITS_PER_BYTE);
-        (packed << (BITS_PER_BYTE * size_of::<u8>())) + (byt as u64)
-    })
+    // Keep this in a single left shift loop and never reverse:
+    // (Assumes unpacked_bytes[0] is the least significant byte.)
+    assert!(unpacked_bytes.len() == 8);
+    let mut packed: u64 = 0;
+    for (i, &b) in unpacked_bytes.iter().enumerate() {
+        packed |= (b as u64) << (8 * i);
+    }
+    packed
 }
+//fn pack_bytes(unpacked_bytes: &[u8; BITS_PER_BYTE]) -> u64 {
+//    assert!(unpacked_bytes.len() == BITS_PER_BYTE);
+//    unpacked_bytes.iter().rev().fold(0, |packed, &byt| {
+//        //#[cfg(test)]
+//        //eprint!("{packed:0width$X}", width = DIGITS_PER_BYTE);
+//        (packed << (BITS_PER_BYTE * size_of::<u8>())) + (byt as u64)
+//    })
+//}
 
 /// takes in (less than 168) bytes, and possibly appends 0b111110…01 to pad to 168 bytes
 /// equivalently, the 168 byte-array first non filled byte is XORed with 0x1F, and the last byte
@@ -70,7 +88,7 @@ fn bytes_to_chunk(b: &[u8]) -> [u64; RATE] {
     assert!(b.len() <= RATE * BYTES_PER_CHUNK);
     if b.len() == RATE * BYTES_PER_CHUNK {
         b.chunks(BYTES_PER_CHUNK)
-            .map(pack_bytes)
+            .map(|chunk| pack_bytes(chunk.try_into().unwrap()))
             .collect::<Vec<u64>>()
             .try_into()
             .unwrap()
@@ -111,7 +129,7 @@ mod test {
 
     #[test]
     fn print_zero() {
-        let out = state_to_string(&ZERO_STATE, "");
+        let out = chunk_to_string(&ZERO_STATE, "");
         eprintln!("{out}, length = {}", out.len());
         assert_eq!(out.len(), STATE_SIZE * DIGITS_PER_BYTE * BYTES_PER_CHUNK);
     }
@@ -182,7 +200,7 @@ mod test {
         assert_eq!(
             bytes_to_chunks(empty)
                 .into_iter()
-                .map(|chunk| state_to_string(&chunk, " "))
+                .map(|chunk| chunk_to_string(&chunk, " "))
                 .collect::<Vec<String>>()
                 .join(" "),
             read_example(empty_padded)
@@ -197,7 +215,7 @@ mod test {
         assert_eq!(
             bytes_to_chunks(&message)
                 .into_iter()
-                .map(|chunk| state_to_string(&chunk, " "))
+                .map(|chunk| chunk_to_string(&chunk, " "))
                 .collect::<Vec<String>>()
                 .join(" "),
             read_example(padded)
@@ -211,7 +229,7 @@ mod test {
         assert_eq!(
             bytes_to_chunks(&message)
                 .into_iter()
-                .map(|chunk| state_to_string(&chunk, " "))
+                .map(|chunk| chunk_to_string(&chunk, " "))
                 .collect::<Vec<String>>()
                 .join(" "),
             read_example(padded)
@@ -227,7 +245,7 @@ mod test {
         assert_eq!(
             bytes_to_chunks(&message)
                 .into_iter()
-                .map(|chunk| state_to_string(&chunk, " "))
+                .map(|chunk| chunk_to_string(&chunk, " "))
                 .collect::<Vec<String>>()
                 .join(" "),
             read_example(padded)
