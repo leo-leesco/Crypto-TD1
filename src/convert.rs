@@ -64,7 +64,7 @@ fn unpack_bytes(packed_bytes: &u64) -> [u8; BITS_PER_BYTE] {
 }
 
 fn pack_bytes(unpacked_bytes: &[u8; BITS_PER_BYTE]) -> u64 {
-    assert!(unpacked_bytes.len() == BITS_PER_BYTE);
+    assert_eq!(unpacked_bytes.len(), BITS_PER_BYTE);
     unpacked_bytes.iter().rev().fold(0, |packed, &byt| {
         #[cfg(test)]
         eprint!("{packed:0width$X}", width = DIGITS_PER_BYTE);
